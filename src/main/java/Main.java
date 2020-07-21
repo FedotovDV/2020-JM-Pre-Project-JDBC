@@ -49,7 +49,7 @@ public class Main {
         Session session = sessionFactory.openSession();
         try {
 
-            User user = new User("Ivan", "Ivanov", (byte) 22);
+            User user = new User("Ivan", "Ivanov", (byte) 23);
 
             Transaction transaction = session.beginTransaction();
             session.save(user);
