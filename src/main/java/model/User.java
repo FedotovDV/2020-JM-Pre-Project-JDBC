@@ -1,18 +1,27 @@
 package model;
 
 
+import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY,generator="native")
+    @GenericGenerator(name = "native",strategy = "native")
+    @Column(name = "id")
     private Long id;
 
-
+    @Column(name = "NAME")
     private String name;
 
-
+    @Column(name = "LAST_NAME")
     private String lastName;
 
-
+    @Column(name = "AGE")
     private Byte age;
 
     public User() {
@@ -25,10 +34,12 @@ public class User {
         this.age = age;
     }
 
+
     public User(Long id, String name, String lastName, Byte age) {
-        this(name,lastName,age);
+        this(name, lastName, age);
         this.id = id;
     }
+
 
     public Long getId() {
         return id;

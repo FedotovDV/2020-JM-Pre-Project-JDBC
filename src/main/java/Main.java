@@ -1,4 +1,8 @@
 import model.User;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import util.Util;
 
 import java.sql.*;
@@ -36,44 +40,59 @@ public class Main {
     private static final String SELECT_ALL_USERS_FROM_TABLE =
             "SELECT * FROM user;";
 
-    private static  List<User> users = new ArrayList<>();
+    private static List<User> users = new ArrayList<>();
 
 
     public static void main(String[] args) {
 
-        try (Connection connection = Util.getConnection();
-             Statement statement = connection.createStatement();) {
-            statement.addBatch(DROP_TABLE_QUERY);
-            statement.addBatch(CREATE_TABLE_QUERY);
-            statement.executeBatch();
-            try (PreparedStatement preparedStatementInsert = connection.prepareStatement(INSERT_USER_IN_TABLE)) {
-                preparedStatementInsert.setString(1, "Petr");
-                preparedStatementInsert.setString(2, "Petrov");
-                preparedStatementInsert.setByte(3, (byte) 32);
-                preparedStatementInsert.executeUpdate();
-                preparedStatementInsert.setString(1, "Ivan");
-                preparedStatementInsert.setString(2, "Ivanov");
-                preparedStatementInsert.setByte(3, (byte) 25);
-                preparedStatementInsert.executeUpdate();
-            }
+        SessionFactory sessionFactory = Util.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        try {
 
-            try (ResultSet resultSet = statement.executeQuery(SELECT_ALL_USERS_FROM_TABLE)) {
-                while (resultSet.next()) {
-                    users.add(new User(resultSet.getLong("id"), resultSet.getString("name"), resultSet.getString("last_name"), resultSet.getByte("age")));
-                }
-                System.out.println(users);
-            }
-            try (PreparedStatement preparedStatementDelete = connection.prepareStatement(DELETE_USER_FROM_TABLE)) {
-                preparedStatementDelete.setLong(1, 1);
-                preparedStatementDelete.executeUpdate();
-            }
-//            statement.executeUpdate("DELETE FROM user WHERE id = 1;");
-            statement.addBatch(CLEAR_TABLE_QUERY);
-            statement.addBatch(DROP_TABLE_QUERY);
-            statement.executeBatch();
-            System.out.println(connection.isValid(0));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            User user = new User("Ivan", "Ivanov", (byte) 22);
+
+            Transaction transaction = session.beginTransaction();
+            session.save(user);
+            transaction.commit();
+
+        } catch (HibernateException he) {
+            he.printStackTrace();
+        } finally {
+            session.close();
         }
+//        try (Connection connection = Util.getConnection();
+//             Statement statement = connection.createStatement();) {
+//            statement.addBatch(DROP_TABLE_QUERY);
+//            statement.addBatch(CREATE_TABLE_QUERY);
+//            statement.executeBatch();
+//            try (PreparedStatement preparedStatementInsert = connection.prepareStatement(INSERT_USER_IN_TABLE)) {
+//                preparedStatementInsert.setString(1, "Petr");
+//                preparedStatementInsert.setString(2, "Petrov");
+//                preparedStatementInsert.setByte(3, (byte) 32);
+//                preparedStatementInsert.executeUpdate();
+//                preparedStatementInsert.setString(1, "Ivan");
+//                preparedStatementInsert.setString(2, "Ivanov");
+//                preparedStatementInsert.setByte(3, (byte) 25);
+//                preparedStatementInsert.executeUpdate();
+//            }
+//
+//            try (ResultSet resultSet = statement.executeQuery(SELECT_ALL_USERS_FROM_TABLE)) {
+//                while (resultSet.next()) {
+//                    users.add(new User(resultSet.getLong("id"), resultSet.getString("name"), resultSet.getString("last_name"), resultSet.getByte("age")));
+//                }
+//                System.out.println(users);
+//            }
+//            try (PreparedStatement preparedStatementDelete = connection.prepareStatement(DELETE_USER_FROM_TABLE)) {
+//                preparedStatementDelete.setLong(1, 1);
+//                preparedStatementDelete.executeUpdate();
+//            }
+////            statement.executeUpdate("DELETE FROM user WHERE id = 1;");
+//            statement.addBatch(CLEAR_TABLE_QUERY);
+//            statement.addBatch(DROP_TABLE_QUERY);
+//            statement.executeBatch();
+//            System.out.println(connection.isValid(0));
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
     }
 }
