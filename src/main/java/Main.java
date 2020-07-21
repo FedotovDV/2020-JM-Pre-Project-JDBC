@@ -47,19 +47,22 @@ public class Main {
 
         SessionFactory sessionFactory = Util.getSessionFactory();
         Session session = sessionFactory.openSession();
-        try {
 
-            User user = new User("Ivan", "Ivanov", (byte) 23);
+        User user = new User("Ivan", "Ivanov", (byte) 26);
+        Transaction transaction = session.beginTransaction();
+        session.save(user);
+        transaction.commit();
+        session.close();
 
-            Transaction transaction = session.beginTransaction();
-            session.save(user);
-            transaction.commit();
+        sessionFactory = Util.getSessionFactory();
+        session = sessionFactory.openSession();
 
-        } catch (HibernateException he) {
-            he.printStackTrace();
-        } finally {
-            session.close();
-        }
+        user = new User("Petr", "Petrov", (byte) 27);
+        transaction = session.beginTransaction();
+        session.save(user);
+        transaction.commit();
+        session.close();
+
 //        try (Connection connection = Util.getConnection();
 //             Statement statement = connection.createStatement();) {
 //            statement.addBatch(DROP_TABLE_QUERY);
